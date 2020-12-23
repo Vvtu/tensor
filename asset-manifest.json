@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/tensor/static/css/main.91de9b42.chunk.css",
+    "main.js": "/tensor/static/js/main.dcd35a2c.chunk.js",
+    "main.js.map": "/tensor/static/js/main.dcd35a2c.chunk.js.map",
+    "runtime-main.js": "/tensor/static/js/runtime-main.0766244f.js",
+    "runtime-main.js.map": "/tensor/static/js/runtime-main.0766244f.js.map",
+    "static/js/2.95b99049.chunk.js": "/tensor/static/js/2.95b99049.chunk.js",
+    "static/js/2.95b99049.chunk.js.map": "/tensor/static/js/2.95b99049.chunk.js.map",
+    "static/js/3.46ae002b.chunk.js": "/tensor/static/js/3.46ae002b.chunk.js",
+    "static/js/3.46ae002b.chunk.js.map": "/tensor/static/js/3.46ae002b.chunk.js.map",
+    "index.html": "/tensor/index.html",
+    "static/css/main.91de9b42.chunk.css.map": "/tensor/static/css/main.91de9b42.chunk.css.map",
+    "static/js/2.95b99049.chunk.js.LICENSE.txt": "/tensor/static/js/2.95b99049.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.0766244f.js",
+    "static/js/2.95b99049.chunk.js",
+    "static/css/main.91de9b42.chunk.css",
+    "static/js/main.dcd35a2c.chunk.js"
+  ]
+}
