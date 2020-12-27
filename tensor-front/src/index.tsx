@@ -1,13 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import HorsePowerData from './HorsePowerData';
+import TeachableMachine from './TeachableMachine';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <HorsePowerData />
-  </React.StrictMode>,
+  <React.StrictMode>{/* <HorsePowerData /> */}</React.StrictMode>,
   document.getElementById('root'),
 );
 

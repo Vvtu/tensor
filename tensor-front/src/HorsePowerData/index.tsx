@@ -5,6 +5,8 @@ import { createModel } from './createModel';
 import { getData } from './getData';
 import { ploteData } from './ploteData';
 import { convertToTensor } from './convertToTensor';
+import { trainModel } from './trainModel';
+import { testModel } from './testModel';
 
 import '../App.css';
 
@@ -22,12 +24,18 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    if (data.length !== 0) {
-      const model = createModel();
-      ploteData(data, model);
-      const tensor = convertToTensor(data);
-      console.log('tensor = ', tensor);
-    }
+    const fn = async () => {
+      if (data.length !== 0) {
+        const model = createModel();
+        ploteData(data, model);
+        const tensorData = convertToTensor(data);
+        console.log('tensor = ', tensorData);
+        const { inputs, labels } = tensorData;
+        await trainModel(model, inputs, labels);
+        testModel(model, data, tensorData);
+      }
+    };
+    fn();
   }, [data]);
 
   return (
