@@ -43,10 +43,30 @@ function App() {
         }))
         .filter((car: any) => car.mpg != null && car.horsepower != null);
       console.log('carsData cleaned = ', cleaned);
+
       setData(cleaned);
     }
     getData();
   }, []);
+
+  React.useEffect(() => {
+    if (data.length !== 0) {
+      const values = data.map((d: any) => ({
+        x: d.horsepower,
+        y: d.mpg,
+      }));
+
+      tfvis.render.scatterplot(
+        { name: 'Horsepower v MPG' },
+        { values },
+        {
+          xLabel: 'Horsepower',
+          yLabel: 'MPG',
+          height: 500,
+        },
+      );
+    }
+  }, [data]);
 
   return (
     <div className="App">
