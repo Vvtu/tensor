@@ -4,7 +4,10 @@ import ErrorBoundaries from './ErrorBoundaries';
 import './App.css';
 
 //@ts-ignore
-const tf = window.tf;
+const { tf, tfvis } = window;
+
+console.log('tf = ', tf);
+console.log('tfvis = ', tfvis);
 
 // Define a model for linear regression.
 const model = tf.sequential();
