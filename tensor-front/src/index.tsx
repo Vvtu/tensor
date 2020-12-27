@@ -5,7 +5,11 @@ import TeachableMachine from './TeachableMachine';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
-  <React.StrictMode>{/* <HorsePowerData /> */}</React.StrictMode>,
+  <React.StrictMode>
+    {/* <HorsePowerData /> */}
+
+    <TeachableMachine />
+  </React.StrictMode>,
   document.getElementById('root'),
 );
 

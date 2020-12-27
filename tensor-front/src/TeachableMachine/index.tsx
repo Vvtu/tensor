@@ -12,13 +12,13 @@ console.log('tf = ', tf);
 console.log('tfvis = ', tfvis);
 
 const videoConstraints = {
-  width: 1280,
+  width: 800,
   height: 720,
-  facingMode: 'user',
+  facingMode: 'environment',
 };
 
 function App() {
-  const [data, setData] = React.useState<any[]>([]);
+  const [data, setData] = React.useState<any>();
 
   React.useEffect(() => {
     // getData().then((cleaned) => setData(cleaned));
@@ -45,17 +45,22 @@ function App() {
     //@ts-ignore
     const imageSrc = webcamRef.current && webcamRef.current.getScreenshot();
     console.log('imageSrc = ', imageSrc);
+    //@ts-ignore
+    setData(imageSrc && imageSrc.length);
   }, [webcamRef]);
 
   return (
     <div className="App">
       <ErrorBoundaries>
         <header className="App-header">
+          {`data count = ${data}`}
           <Webcam
             audio={false}
+            mirrored={true}
             height={videoConstraints.height}
             ref={webcamRef}
             screenshotFormat="image/jpeg"
+            screenshotQuality={0.92}
             width={videoConstraints.width}
             videoConstraints={videoConstraints}
           />
