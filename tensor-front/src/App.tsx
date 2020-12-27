@@ -1,7 +1,6 @@
 import React from 'react';
 import ErrorBoundaries from './ErrorBoundaries';
 
-import logo from './logo.svg';
 import './App.css';
 
 //@ts-ignore
@@ -25,25 +24,8 @@ model.fit(xs, ys, { epochs: 10 }).then(() => {
 });
 //@ts-ignore
 
-const HREF =
-  'yandexnavi://build_route_on_map?lat_from=55.74&lon_from=37.60&lat_to=55.76&lon_to=37.64';
-
 function App() {
   const [data, setData] = React.useState<any[]>([]);
-
-  const ff = async () => {
-    try {
-      const response = await fetch(HREF);
-      if (response.ok) {
-        const json = await response.json();
-        setData(['json = ', json]);
-      } else {
-        setData(['Ошибка HTTP:  =  ' + response.status]);
-      }
-    } catch (err) {
-      setData(['catch HTTP:  =  ' + err]);
-    }
-  };
 
   React.useEffect(() => {
     // ff();
@@ -53,42 +35,7 @@ function App() {
     <div className="App">
       <ErrorBoundaries>
         <header className="App-header">
-          {/* <img src={logo} className="App-logo" alt="logo" /> */}
-
-          {/* <div
-          className="App-link"
-          onClick={() => {
-            console.log('shareRet prep = ');
-            const data = {
-              title: 'web.dev',
-              text: 'Check out web.dev.',
-              url: 'https://web.dev/',
-            };
-
-            if (navigator.share) {
-              navigator
-                .share(data)
-                .then(() => console.log('Successful share'))
-                .catch((error) => console.log('Error sharing', error));
-            } else {
-              console.log('navigator.share not found');
-            }
-          }}
-        >
-          Share link 222
-        </div> */}
           <div>{JSON.stringify(data)}</div>
-          <div
-            className="App-link"
-            onClick={() => {
-              const yandexURL =
-                'yandexnavi://build_route_on_map?lat_from=55.74&lon_from=37.60&lat_to=55.76&lon_to=37.64';
-              console.log('shareRet prep = ');
-              window.location.href = yandexURL;
-            }}
-          >
-            <a>{'Открыть Яндекс.Навигатор'}</a>
-          </div>
         </header>
       </ErrorBoundaries>
     </div>
