@@ -17,6 +17,8 @@ const videoConstraints = {
   facingMode: 'environment',
 };
 
+let count = 0;
+
 function App() {
   const capturingTimeoutId = React.useRef<NodeJS.Timeout>();
   const [capturing, setCapturing] = React.useState<boolean>(false);
@@ -34,15 +36,14 @@ function App() {
   }, [capturingTimeoutId.current]);
 
   React.useEffect(() => {
-    const fn = async () => {
-      for (let i = 0; i < 10; i -= 1) {
-        setResult([...result, 10]);
-        await delay(100);
-      }
-      setCapturing(false);
-    };
     if (capturing) {
-      fn();
+      delay(100).then(() => {
+        const newResult = [...result, count++];
+        if (newResult.length > 5) {
+          newResult.shift();
+        }
+        setResult(newResult);
+      });
     }
   }, [capturing, result]);
 
@@ -62,7 +63,7 @@ function App() {
     <div className="App">
       <ErrorBoundaries>
         <header className="App-header">
-          <div>{`result = ${result}`}</div>
+          <div>{`result = ${JSON.stringify(result)}`}</div>
           <ReactWebcam
             audio={false}
             mirrored={true}
@@ -75,7 +76,7 @@ function App() {
           />
           <button
             onClick={() => {
-              setCapturing(true);
+              setCapturing(!capturing);
             }}
           >
             Capture photo
