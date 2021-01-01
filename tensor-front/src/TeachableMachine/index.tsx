@@ -20,23 +20,23 @@ const videoConstraints = {
 let count = 0;
 
 function App() {
-  const capturingTimeoutId = React.useRef<NodeJS.Timeout>();
-  const [capturing, setCapturing] = React.useState<boolean>(false);
+  const captureTimeoutId = React.useRef<NodeJS.Timeout>();
+  const [capture, setCapture] = React.useState<boolean>(false);
   const [result, setResult] = React.useState<any[]>([]);
 
   const delay = (t: number) =>
     new Promise((resolve, reject) => {
-      capturingTimeoutId.current = setTimeout(() => resolve(true), t);
+      captureTimeoutId.current = setTimeout(() => resolve(true), t);
     });
 
   React.useEffect(() => {
-    const id = capturingTimeoutId.current;
+    const id = captureTimeoutId.current;
     return () => id && clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [capturingTimeoutId.current]);
+  }, [captureTimeoutId.current]);
 
   React.useEffect(() => {
-    if (capturing) {
+    if (capture) {
       delay(100).then(() => {
         const newResult = [...result, count++];
         if (newResult.length > 5) {
@@ -45,7 +45,7 @@ function App() {
         setResult(newResult);
       });
     }
-  }, [capturing, result]);
+  }, [capture, result]);
 
   const webcamRef = React.useRef(null);
 
@@ -76,7 +76,7 @@ function App() {
           />
           <button
             onClick={() => {
-              setCapturing(!capturing);
+              setCapture(!capture);
             }}
           >
             Capture photo
