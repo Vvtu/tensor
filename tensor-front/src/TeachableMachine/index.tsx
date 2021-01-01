@@ -18,32 +18,51 @@ const videoConstraints = {
 };
 
 function App() {
-  const [data, setData] = React.useState<any>();
+  const capturingTimeoutId = React.useRef<NodeJS.Timeout>();
+  const [capturing, setCapturing] = React.useState<boolean>(false);
+  const [result, setResult] = React.useState<any[]>([]);
 
-  React.useEffect(() => {}, []);
+  const delay = (t: number) =>
+    new Promise((resolve, reject) => {
+      capturingTimeoutId.current = setTimeout(() => resolve(true), t);
+    });
 
   React.useEffect(() => {
-    const fn = async () => {};
-    fn();
-  }, [data]);
+    const id = capturingTimeoutId.current;
+    return () => id && clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [capturingTimeoutId.current]);
+
+  React.useEffect(() => {
+    const fn = async () => {
+      for (let i = 0; i < 10; i -= 1) {
+        setResult([...result, 10]);
+        await delay(100);
+      }
+      setCapturing(false);
+    };
+    if (capturing) {
+      fn();
+    }
+  }, [capturing, result]);
 
   const webcamRef = React.useRef(null);
 
-  const capture = React.useCallback(() => {
-    if (webcamRef.current) {
-      //@ts-ignore
-      const imageSrc = webcamRef.current.getScreenshot();
-      console.log('imageSrc = ', imageSrc);
-      setData(imageSrc && imageSrc.length);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [webcamRef?.current]);
+  // const capture = React.useCallback(() => {
+  //   if (webcamRef.current) {
+  //     //@ts-ignore
+  //     const imageSrc = webcamRef.current.getScreenshot();
+  //     console.log('imageSrc = ', imageSrc);
+  //     setData(imageSrc && imageSrc.length);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [webcamRef?.current]);
 
   return (
     <div className="App">
       <ErrorBoundaries>
         <header className="App-header">
-          {`data count = ${data}`}
+          <div>{`result = ${result}`}</div>
           <ReactWebcam
             audio={false}
             mirrored={true}
@@ -54,7 +73,13 @@ function App() {
             width={videoConstraints.width}
             videoConstraints={videoConstraints}
           />
-          <button onClick={capture}>Capture photo</button>
+          <button
+            onClick={() => {
+              setCapturing(true);
+            }}
+          >
+            Capture photo
+          </button>
         </header>
       </ErrorBoundaries>
     </div>
