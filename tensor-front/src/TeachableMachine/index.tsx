@@ -1,27 +1,19 @@
 import React from 'react';
-import ReactWebcam from 'react-webcam';
 
 import ErrorBoundaries from '../ErrorBoundaries';
 
 import '../App.css';
 
+const WEBCAM_CONTAINER_ID = 'webcam-container-id';
 //@ts-ignore
-const { tf, tfvis } = window;
-
+const { tf, tfvis, tmImage } = window;
 console.log('tf = ', tf);
 console.log('tfvis = ', tfvis);
-
-const videoConstraints = {
-  width: 300,
-  height: 300,
-  facingMode: 'environment',
-};
-
-let count = 0;
 
 const URL = 'https://teachablemachine.withgoogle.com/models/G9cPc7f35/';
 const modelURL = URL + 'model.json';
 const metadataURL = URL + 'metadata.json';
+
 let model: any;
 let webcam: any;
 let maxPredictions: number;
@@ -36,11 +28,10 @@ function App() {
       captureTimeoutId.current = setTimeout(() => resolve(true), t);
     });
 
+  const id = captureTimeoutId.current;
   React.useEffect(() => {
-    const id = captureTimeoutId.current;
     return () => id && clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [captureTimeoutId.current]);
+  }, [id]);
 
   React.useEffect(() => {
     console.log('capture = ', capture);
@@ -57,21 +48,24 @@ function App() {
         // or files from your local hard drive
         // Note: the pose library adds "tmImage" object to your window (window.tmImage)
         //@ts-ignore
-        const { tmImage } = window;
         model = await tmImage.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
         console.log('maxPredictions = ', maxPredictions);
-
-        // Convenience function to setup a webcam
-        const flip = false; // whether to flip the webcam
-        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
-        await webcam.setup(); // request access to the webcam
-        await webcam.play();
-        window.requestAnimationFrame(loop);
+        try {
+          // Convenience function to setup a webcam
+          const flip = false; // whether to flip the webcam
+          webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+          await webcam.setup(); // request access to the webcam
+          await webcam.play();
+          requestAnimationFrame(loop);
+          document?.getElementById(WEBCAM_CONTAINER_ID)?.appendChild(webcam?.canvas);
+        } catch (e) {
+          console.log('error = ', e);
+          setResult(['error = ' + e]);
+          setCapture(false);
+        }
 
         // append elements to the DOM
-        //@ts-ignore
-        document.getElementById('webcam-container').appendChild(webcam.canvas);
         // labelContainer = document.getElementById('label-container');
         // for (let i = 0; i < maxPredictions; i++) {
         //   // and class labels
@@ -82,8 +76,10 @@ function App() {
       async function loop() {
         webcam.update(); // update the webcam frame
         await predict();
-        await delay(100);
-        window.requestAnimationFrame(loop);
+        await delay(50);
+        if (capture) {
+          requestAnimationFrame(loop);
+        }
       }
 
       // run the webcam image through the image model
@@ -102,6 +98,12 @@ function App() {
       //   }
       //   setResult(newResult);
       // });
+    } else {
+      webcam?.stop?.();
+      let element = document.getElementById(WEBCAM_CONTAINER_ID);
+      while (element?.firstChild) {
+        element.removeChild(element.firstChild);
+      }
     }
   }, [capture, result]);
 
@@ -122,7 +124,7 @@ function App() {
       <ErrorBoundaries>
         <header className="App-header">
           <div>{`result = ${JSON.stringify(result)}`}</div>
-          <div id="webcam-container">webcam-container</div>
+          <div id={WEBCAM_CONTAINER_ID}>webcam-container</div>
           {/* <ReactWebcam
             audio={false}
             mirrored={true}
