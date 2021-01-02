@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactWebcam from 'react-webcam';
 
 import ErrorBoundaries from '../ErrorBoundaries';
 
@@ -14,14 +15,19 @@ const URL = 'https://teachablemachine.withgoogle.com/models/G9cPc7f35/';
 const modelURL = URL + 'model.json';
 const metadataURL = URL + 'metadata.json';
 
-let model: any;
-let webcam: any;
+const videoConstraints = {
+  width: 200,
+  height: 200,
+  facingMode: 'environment',
+};
+
 let maxPredictions: number;
 
 function App() {
+  const webcamRef = React.useRef(null);
   const captureTimeoutId = React.useRef<NodeJS.Timeout>();
-  const [capture, setCapture] = React.useState<boolean>(false);
   const [result, setResult] = React.useState<any[]>([]);
+  const [model, setModel] = React.useState<any>(null);
 
   const delay = (t: number) =>
     new Promise((resolve, reject) => {
@@ -32,30 +38,20 @@ function App() {
     });
 
   React.useEffect(() => {
+    maxPredictions = 0;
     async function init() {
       // load the model and metadata
       // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
       // or files from your local hard drive
       // Note: the pose library adds "tmImage" object to your window (window.tmImage)
       //@ts-ignore
-      model = await tmImage.load(modelURL, metadataURL);
-      maxPredictions = model.getTotalClasses();
+      const newModel = await tmImage.load(modelURL, metadataURL);
+      setModel(newModel);
+      maxPredictions = newModel.getTotalClasses();
       console.log('maxPredictions = ', maxPredictions);
-      try {
-        // Convenience function to setup a webcam
-        const flip = false; // whether to flip the webcam
-        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
-        await webcam.setup(); // request access to the webcam
-        await webcam.play();
-        document?.getElementById(WEBCAM_CONTAINER_ID)?.appendChild(webcam?.canvas);
-      } catch (e) {
-        console.log('error = ', e);
-        setResult(['error = ' + e]);
-      }
     }
     init();
     return () => {
-      webcam?.stop?.();
       if (captureTimeoutId.current) {
         clearTimeout(captureTimeoutId.current);
         captureTimeoutId.current = undefined;
@@ -64,43 +60,47 @@ function App() {
   }, []);
 
   React.useEffect(() => {
+    console.log('React.useEffect webcamRef.current = ', webcamRef.current);
+    console.log('React.useEffect model = ', model);
     async function processOnePicture() {
-      try {
-        webcam.update(); // update the webcam frame
-        const prediction = await model.predict(webcam.canvas);
-        setResult(prediction);
-        console.log('prediction = ', prediction);
-      } catch (e) {
-        console.error('processOnePicture error = ', e);
+      if (webcamRef.current && model) {
+        try {
+          //@ts-ignore
+          const imageSrc = webcamRef.current.getScreenshot();
+          //@ts-ignore
+          // const prediction = await model.predict(imageSrc);
+          await delay(1000);
+          setResult([imageSrc?.length]);
+          console.log('prediction = ', imageSrc?.length);
+        } catch (e) {
+          console.error('processOnePicture error = ', e);
+        }
+      } else {
+        if (captureTimeoutId.current) {
+          clearTimeout(captureTimeoutId.current);
+          captureTimeoutId.current = undefined;
+        }
       }
-      await delay(50);
     }
-
-    console.log('capture = ', capture);
-    if (capture) {
-      processOnePicture();
-    } else {
-      if (captureTimeoutId.current) {
-        clearTimeout(captureTimeoutId.current);
-        captureTimeoutId.current = undefined;
-      }
-    }
-  }, [capture, result]);
+    processOnePicture();
+  }, [result, model]);
 
   return (
     <div className="App">
       <ErrorBoundaries>
         <header className="App-header">
+          <ReactWebcam
+            audio={false}
+            mirrored={true}
+            height={videoConstraints.height}
+            ref={webcamRef}
+            screenshotFormat="image/jpeg"
+            screenshotQuality={0.92}
+            width={videoConstraints.width}
+            videoConstraints={videoConstraints}
+          />
           <div>{`result = ${JSON.stringify(result)}`}</div>
           <div id={WEBCAM_CONTAINER_ID}>webcam-container</div>
-
-          <button
-            onClick={() => {
-              setCapture(!capture);
-            }}
-          >
-            Capture photo
-          </button>
         </header>
       </ErrorBoundaries>
     </div>
