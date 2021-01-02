@@ -5,11 +5,11 @@ const port = process.env.PORT || 8080;
 console.log("Hello world!");
 // здесь у нас происходит импорт пакетов и определяется порт нашего сервера
 const app = express();
-app.use(favicon(__dirname + "front/build/favicon.ico"));
+app.use(favicon(__dirname + "build/favicon.ico"));
 
 //здесь наше приложение отдаёт статику
 app.use(express.static(__dirname));
-app.use(express.static(path.join(__dirname, "front", "build")));
+app.use(express.static(path.join(__dirname,  "build")));
 
 //простой тест сервера
 app.get("/ping", function (req, res) {
@@ -18,6 +18,6 @@ app.get("/ping", function (req, res) {
 
 //обслуживание html
 app.get("/*", function (req, res) {
-  res.sendFile(path.join(__dirname, "front","build", "index.html"));
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 app.listen(port);
