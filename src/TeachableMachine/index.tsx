@@ -54,21 +54,35 @@ function App() {
       }
     }
     init();
-    return () => captureTimeoutId.current && clearTimeout(captureTimeoutId.current);
+    return () => {
+      if (captureTimeoutId.current) {
+        clearTimeout(captureTimeoutId.current);
+        captureTimeoutId.current = undefined;
+      }
+    };
   }, []);
 
   React.useEffect(() => {
     console.log('capture = ', capture);
     if (capture) {
       async function processOnePicture() {
-        webcam.update(); // update the webcam frame
-        const prediction = await model.predict(webcam.canvas);
-        setResult(prediction);
-        console.log('prediction = ', prediction);
+        try {
+          webcam.update(); // update the webcam frame
+          const prediction = await model.predict(webcam.canvas);
+          setResult(prediction);
+          console.log('prediction = ', prediction);
+        } catch (e) {
+          console.error('processOnePicture error = ', e);
+        }
         await delay(50);
       }
       processOnePicture();
     } else {
+      if (captureTimeoutId.current) {
+        clearTimeout(captureTimeoutId.current);
+        captureTimeoutId.current = undefined;
+      }
+
       webcam?.stop?.();
     }
   }, [capture, result]);
