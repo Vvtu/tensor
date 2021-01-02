@@ -2,10 +2,8 @@ import React from 'react';
 import ReactWebcam from 'react-webcam';
 
 import ErrorBoundaries from '../ErrorBoundaries';
-
 import '../App.css';
 
-const WEBCAM_CONTAINER_ID = 'webcam-container-id';
 //@ts-ignore
 const { tf, tfvis, tmImage } = window;
 console.log('tf = ', tf);
@@ -20,8 +18,6 @@ const videoConstraints = {
   height: 200,
   facingMode: 'environment',
 };
-
-let maxPredictions: number;
 
 function App() {
   const webcamRef = React.useRef(null);
@@ -38,7 +34,6 @@ function App() {
     });
 
   React.useEffect(() => {
-    maxPredictions = 0;
     async function init() {
       // load the model and metadata
       // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
@@ -47,8 +42,7 @@ function App() {
       //@ts-ignore
       const newModel = await tmImage.load(modelURL, metadataURL);
       setModel(newModel);
-      maxPredictions = newModel.getTotalClasses();
-      console.log('maxPredictions = ', maxPredictions);
+      // maxPredictions = newModel.getTotalClasses();
     }
     init();
     return () => {
@@ -66,12 +60,15 @@ function App() {
       if (webcamRef.current && model) {
         try {
           //@ts-ignore
-          const imageSrc = webcamRef.current.getScreenshot();
+          const imageSrcCanvas = webcamRef.current.getCanvas(videoConstraints);
+          let prediction = [];
           //@ts-ignore
-          // const prediction = await model.predict(imageSrc);
-          await delay(1000);
-          setResult([imageSrc?.length]);
-          console.log('prediction = ', imageSrc?.length);
+          if (imageSrcCanvas) {
+            prediction = await model.predict(imageSrcCanvas);
+          }
+          await delay(50);
+          setResult(prediction);
+          console.log('prediction = ', imageSrcCanvas?.length);
         } catch (e) {
           console.error('processOnePicture error = ', e);
         }
@@ -91,7 +88,7 @@ function App() {
         <header className="App-header">
           <ReactWebcam
             audio={false}
-            mirrored={true}
+            mirrored={false}
             height={videoConstraints.height}
             ref={webcamRef}
             screenshotFormat="image/jpeg"
@@ -99,8 +96,15 @@ function App() {
             width={videoConstraints.width}
             videoConstraints={videoConstraints}
           />
-          <div>{`result = ${JSON.stringify(result)}`}</div>
-          <div id={WEBCAM_CONTAINER_ID}>webcam-container</div>
+          <div>
+            {result.map((item, index) => (
+              <div key={String(index)}>
+                <span>{item.className}</span>
+                <span>{' - '}</span>
+                <span>{item.probability.toFixed(4)}</span>
+              </div>
+            ))}
+          </div>
         </header>
       </ErrorBoundaries>
     </div>
