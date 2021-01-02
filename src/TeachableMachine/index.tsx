@@ -25,8 +25,10 @@ function App() {
 
   const delay = (t: number) =>
     new Promise((resolve, reject) => {
-      captureTimeoutId.current = setTimeout(
-        () => { resolve(true); captureTimeoutId.current = undefined;}, t);
+      captureTimeoutId.current = setTimeout(() => {
+        resolve(true);
+        captureTimeoutId.current = undefined;
+      }, t);
     });
 
   React.useEffect(() => {
@@ -51,7 +53,7 @@ function App() {
         setResult(['error = ' + e]);
       }
     }
-init();
+    init();
     return () => captureTimeoutId.current && clearTimeout(captureTimeoutId.current);
   }, []);
 
@@ -70,7 +72,6 @@ init();
       webcam?.stop?.();
     }
   }, [capture, result]);
-
 
   return (
     <div className="App">
