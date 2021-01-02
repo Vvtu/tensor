@@ -55,6 +55,7 @@ function App() {
     }
     init();
     return () => {
+      webcam?.stop?.();
       if (captureTimeoutId.current) {
         clearTimeout(captureTimeoutId.current);
         captureTimeoutId.current = undefined;
@@ -63,27 +64,26 @@ function App() {
   }, []);
 
   React.useEffect(() => {
+    async function processOnePicture() {
+      try {
+        webcam.update(); // update the webcam frame
+        const prediction = await model.predict(webcam.canvas);
+        setResult(prediction);
+        console.log('prediction = ', prediction);
+      } catch (e) {
+        console.error('processOnePicture error = ', e);
+      }
+      await delay(50);
+    }
+
     console.log('capture = ', capture);
     if (capture) {
-      async function processOnePicture() {
-        try {
-          webcam.update(); // update the webcam frame
-          const prediction = await model.predict(webcam.canvas);
-          setResult(prediction);
-          console.log('prediction = ', prediction);
-        } catch (e) {
-          console.error('processOnePicture error = ', e);
-        }
-        await delay(50);
-      }
       processOnePicture();
     } else {
       if (captureTimeoutId.current) {
         clearTimeout(captureTimeoutId.current);
         captureTimeoutId.current = undefined;
       }
-
-      webcam?.stop?.();
     }
   }, [capture, result]);
 
